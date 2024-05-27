@@ -1,70 +1,143 @@
-import turtle
+import turtle  # Importamos el módulo turtle para dibujar en la ventana gráfica.
 
 class Tablero:
-    def __init__(self):
-        self.t = turtle.Turtle()
-        self.t.speed(0)
-        self.screen = turtle.Screen()
-        self.screen.setup(width=400, height=400)
+    def __init__(self, size=400):
+        self.t = turtle.Turtle()  # Creamos un objeto Turtle para dibujar.
+        self.t.speed(0)  # Establecemos la velocidad de dibujo al máximo.
+        self.screen = turtle.Screen()  # Creamos una ventana gráfica.
+        self.screen.setup(width=400, height=400)  # Configuramos el tamaño de la ventana.
+        self.cell_size = size // 2  # Definimos el tamaño de cada celda del tablero.
+        self.turno = 0  # Variable para controlar el turno: 0 para círculo, 1 para cruz.
+        self.ocupadas = []  # Lista para registrar las celdas ocupadas.
+        self.prime_2 = []  # Lista para registrar las celdas ocupadas por círculos.
+        self.prime_3 = []  # Lista para registrar las celdas ocupadas por cruces.
+        self.ganado = False  # Variable para indicar si alguien ha ganado.
 
     def dibujar_tablero(self):
-        # Dibujar las líneas verticales
+        # Dibujamos las líneas verticales del tablero.
         for i in range(-1, 2, 2):
-            self.t.penup()
-            self.t.goto(i * 100, -300)
-            self.t.pendown()
-            self.t.goto(i * 100, 300)
-        
-        # Dibujar las líneas horizontales
+            self.t.penup()  # Levantamos el lápiz para movernos sin dibujar.
+            self.t.goto(i * 100, -300)  # Movemos el lápiz a la posición inicial de la línea.
+            self.t.pendown()  # Bajamos el lápiz para empezar a dibujar.
+            self.t.goto(i * 100, 300)  # Dibujamos la línea vertical.
+
+        # Dibujamos las líneas horizontales del tablero.
         for i in range(-1, 2, 2):
-            self.t.penup()
-            self.t.goto(-300, i * 100)
-            self.t.pendown()
-            self.t.goto(300, i * 100)
-        
-        self.t.hideturtle()
+            self.t.penup()  
+            self.t.goto(-300, i * 100)  
+            self.t.pendown()  
+            self.t.goto(300, i * 100) 
 
-class Circulo:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.t.hideturtle()  # Ocultamos el objeto Turtle para que no se vea en el tablero.
 
-    def dibujar(self):
-        t = turtle.Turtle()
-        t.penup()
-        t.goto(self.x, self.y - 50)
-        t.pendown()
-        t.circle(50)
-        t.hideturtle()
+    def dibujar_circulo(self, x, y):
+        t = turtle.Turtle()  # Creamos un nuevo objeto Turtle para dibujar el círculo.
+        t.penup()  
+        t.goto(x, y - self.cell_size // 2)  
+        t.pendown()  
+        t.circle(self.cell_size // 2)  
+        t.hideturtle()  # Ocultamos el objeto Turtle.
 
-class Cruz:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def dibujar_cruz(self, x, y):
+        t = turtle.Turtle()  # Creamos un nuevo objeto Turtle para dibujar la cruz.
+        t.penup()  
+        t.goto(x - self.cell_size // 2, y + self.cell_size // 2)  # Movemos el lápiz al punto inicial de la cruz.
+        t.pendown()  
+        t.goto(x + self.cell_size // 2, y - self.cell_size // 2)  # Dibujamos la primera línea diagonal de la cruz.
+        t.penup()  
+        t.goto(x + self.cell_size // 2, y + self.cell_size // 2)  # Movemos el lápiz al punto inicial de la segunda línea.
+        t.pendown()  
+        t.goto(x - self.cell_size // 2, y - self.cell_size // 2)  # Dibujamos la segunda línea diagonal de la cruz.
+        t.hideturtle()  
 
-    def dibujar(self):
-        t = turtle.Turtle()
-        t.penup()
-        t.goto(self.x - 50, self.y + 50)
-        t.pendown()
-        t.goto(self.x + 50, self.y - 50)
-        t.penup()
-        t.goto(self.x + 50, self.y + 50)
-        t.pendown()
-        t.goto(self.x - 50, self.y - 50)
-        t.hideturtle()
+    def get_cell_centers(self):
+        centers = []  # Lista para almacenar los centros de las celdas.
+        offset = self.cell_size  # Offset para calcular las posiciones de los centros.
+        for i in range(-1, 2):  # Recorremos las filas del tablero.
+            for j in range(-1, 2):  # Recorremos las columnas del tablero.
+                centers.append((i * offset, j * offset))  # Añadimos el centro de la celda a la lista.
+        return centers  # Devolvemos la lista de centros de las celdas.
 
-# Ejecución del programa
-tablero = Tablero()
-tablero.dibujar_tablero()
+    def dibujar_punto(self, x, y):
+        t = turtle.Turtle()  # Creamos un nuevo objeto Turtle para dibujar el punto.
+        t.penup()  
+        t.goto(x, y)  
+        t.dot(10)  # Dibujamos un punto de tamaño 10.
+        t.hideturtle()  # Ocultamos el objeto Turtle.
 
-# Dibujar un círculo en la posición central del tablero
-circulo = Circulo(0, 0)
-# circulo.dibujar()
+    def verificar_victoria(self, lista):
+        # Lista de condiciones ganadoras (filas, columnas y diagonales).
+        condiciones_ganadoras = [
+            [(0, 0), (0, 1), (0, 2)],  # Fila superior
+            [(1, 0), (1, 1), (1, 2)],  # Fila central
+            [(2, 0), (2, 1), (2, 2)],  # Fila inferior
+            [(0, 0), (1, 0), (2, 0)],  # Columna izquierda
+            [(0, 1), (1, 1), (2, 1)],  # Columna central
+            [(0, 2), (1, 2), (2, 2)],  # Columna derecha
+            [(0, 0), (1, 1), (2, 2)],  # Diagonal principal
+            [(0, 2), (1, 1), (2, 0)]   # Diagonal secundaria
+        ]
+        for condicion in condiciones_ganadoras:  # Recorremos cada condición ganadora.
+            if all(celda in lista for celda in condicion):  # Verificamos si todas las celdas de la condición están en la lista del jugador.
+                return condicion  # Si hay una condición ganadora, la devolvemos.
+        return None  # Si no hay ninguna condición ganadora, devolvemos None.
 
-# Dibujar una cruz en la esquina superior izquierda del tablero
-cruz = Cruz(-200, 200)
-# cruz.dibujar()
+    def dibujar_linea_ganadora(self, condicion):
+        x1, y1 = self.get_cell_centers()[condicion[0][0] * 3 + condicion[0][1]]  # Obtenemos las coordenadas del primer punto de la línea ganadora.
+        x2, y2 = self.get_cell_centers()[condicion[2][0] * 3 + condicion[2][1]]  # Obtenemos las coordenadas del último punto de la línea ganadora.
+        t = turtle.Turtle() 
+        t.pencolor("red")  # Establecemos el color de la línea a rojo.
+        t.pensize(5)  # Establecemos el grosor de la línea.
+        t.penup()  
+        t.goto(x1, y1)  # Movemos el lápiz al primer punto de la línea.
+        t.pendown()  
+        t.goto(x2, y2)  # Dibujamos la línea hasta el último punto.
+        t.hideturtle()  
 
-# Mantener la ventana abierta
-turtle.done()
+    def jugar(self):
+        while not self.ganado:  # Repetimos el ciclo mientras nadie haya ganado.
+            fila = int(input("Ingrese la fila (0, 1, 2): "))  # Pedimos al usuario que ingrese la fila.
+            columna = int(input("Ingrese la columna (0, 1, 2): "))  # Pedimos al usuario que ingrese la columna.
+            if fila not in [0, 1, 2] or columna not in [0, 1, 2]:  # Verificamos que las coordenadas sean válidas.
+                print("Coordenadas inválidas. Inténtelo de nuevo.")  
+                continue  
+            celda = (fila, columna)  
+            if celda in self.ocupadas:  # Verificamos si la celda ya está ocupada.
+                print("Esta celda ya está ocupada. Inténtelo de nuevo.")  # Si está ocupada, mostramos un mensaje de error.
+                continue  
+            self.ocupadas.append(celda)  # Añadimos la celda a la lista de ocupadas.
+            x, y = self.get_cell_centers()[fila * 3 + columna]  # Ob
+            if self.turno == 0:  # Si es el turno del círculo:tenemos las coordenadas del centro de la celda.
+                self.dibujar_circulo(x, y)  # Dibujamos un círculo en la celda.
+                self.prime_2.append(celda)  # Añadimos la celda a la lista de círculos.
+                condicion_ganadora = self.verificar_victoria(self.prime_2)  # Verificamos si hay una condición ganadora para los círculos.
+                if condicion_ganadora: 
+                    print("¡Círculo ha ganado!")  # Mostramos un mensaje indicando que el círculo ha ganado.
+                    self.dibujar_linea_ganadora(condicion_ganadora)  # Dibujamos la línea ganadora.
+                    self.ganado = True  # Establecemos que alguien ha ganado para terminar el ciclo.
+                self.turno = 1  # Cambiamos el turno a la cruz.
+            else:  
+                self.dibujar_cruz(x, y)  # Dibujamos una cruz en la celda.
+                self.prime_3.append(celda)  # Añadimos la celda a la lista de cruces.
+                condicion_ganadora = self.verificar_victoria(self.prime_3)  # Verificamos si hay una condición ganadora para las cruces.
+                if condicion_ganadora:  
+                    print("¡Cruz ha ganado!")  # Mostramos un mensaje indicando que la cruz ha ganado.
+                    self.dibujar_linea_ganadora(condicion_ganadora)  # Dibujamos la línea ganadora.
+                    self.ganado = True  # Establecemos que alguien ha ganado para terminar el ciclo.
+                self.turno = 0  # Cambiamos el turno al círculo.
+
+
+tablero = Tablero()  
+tablero.dibujar_tablero()  # Dibujamos el tablero.
+
+# Obtener y mostrar las posiciones de las celdas
+centros = tablero.get_cell_centers()  # Obtenemos los centros de las celdas.
+for centro in centros: 
+    print(f'Centro de la celda: {centro}')  # Mostramos las coordenadas del centro de la celda.
+    tablero.dibujar_punto(centro[0], centro[1])  # Dibujamos un punto en el centro de la celda.
+
+
+tablero.jugar()  # Iniciamos el juego.
+
+
+turtle.done()  # Mantenemos la ventana abierta.
