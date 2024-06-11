@@ -153,7 +153,7 @@ class Juego:
 
         self.numero_jugadas += 1  # Incrementamos la cantidad de jugadas.
 
-        print(f'Jugadas: {self.jugadas}')  # Imprimimos la cadena de jugadas actual.
+        print(f'{self.jugadas}')  # Imprimimos la cadena de jugadas actual.
 
         if not self.ganado and self.numero_jugadas == 9:
             print("¡Ha habido un empate!")  # Se dice que nadie ha ganado.

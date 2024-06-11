@@ -1,0 +1,7 @@
+        X
+O       X
+O      XX
+O     OXX
+O   X OXX
+O  OX OXX
+¡Círculo ha ganado!

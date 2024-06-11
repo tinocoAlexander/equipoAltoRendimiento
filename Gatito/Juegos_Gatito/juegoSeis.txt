@@ -1,0 +1,8 @@
+  X      
+  X    O 
+  X   XO 
+  X  OXO 
+X X  OXO 
+XOX  OXO 
+XOXX OXO 
+¡Cruz ha ganado!
