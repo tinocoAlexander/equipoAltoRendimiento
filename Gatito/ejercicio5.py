@@ -1,10 +1,5 @@
 import turtle
 
-class Jugador:
-    def __init__(self, tipo):
-        self.tipo = tipo
-        self.valor = 0 if tipo == 'jugador' else 1
-
 class Dibujo:
     def __init__(self, cell_size=200):
         self.cell_size = cell_size
@@ -173,13 +168,9 @@ def main():
         # Se definen los turnos.
         if turno == "circulo": 
             primer_turno = 0
-            jugador = Jugador('jugador')
-            ia = Jugador('IA')
             break
         elif turno == "cruz":
             primer_turno = 1
-            jugador = Jugador('jugador')
-            ia = Jugador('IA')
             break
         else:
             print("Entrada no válida. Intente de nuevo")
@@ -198,3 +189,4 @@ def main():
     turtle.done()  # Mantenemos la ventana abierta.
 
 main()
+    
